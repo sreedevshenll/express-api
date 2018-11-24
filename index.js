@@ -17,7 +17,7 @@ app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x
 
 app.get('/', (req,res) => {
   res.json({
-    message: "Working Fine!"
+    message: "Express 4 Server Started"
   });
 });
 
