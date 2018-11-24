@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-var _ = require('lodash');
+const _ = require('lodash');
 const bcrypt = require('bcrypt');
 const saltRounds = 8;
 const randtoken = require('rand-token');

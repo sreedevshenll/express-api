@@ -19,6 +19,7 @@ let usersSchema = new Schema({
   dob: { type: Date },
   profileUrl: { type: String },
   created: { type: Date, default: Date.now },
+  role: { type: String, enum: ['admin', 'merchant', 'customer'], default: "customer"},
   authToken: { type: String }
 });
 
