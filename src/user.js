@@ -83,4 +83,96 @@ router.post('/auth',(req, res) => {
   }
 });
 
+function authentication(req, res, next) {
+  let authToken = req.get("xy-authtoken");
+  if(authToken) {
+    Users.findOne({authToken}, (err, user) => {
+      if(!_.isEmpty(user)) {
+        next();
+      } else {
+        res.json({
+          status: "error",
+          message: "invalid_authtoken"
+        });
+      }
+    });
+  } else {
+    res.json({
+      status: "error",
+      message: "authtoken_missing"
+    });
+  }
+}
+
+router.get('/profile', (req, res) => {
+  let authToken = req.get("xy-authtoken");
+  if(authToken) {
+    Users.findOne({authToken}, (err, user) => {
+      if(!_.isEmpty(user)) {
+        let userData = {
+          firstName: user.firstName || "",
+          lastName: user.lastName || "",
+          email: user.email,
+          address: user.address,
+          dob: user.dob,
+          profileUrl: user.profileUrl,
+          created: user.created
+        }
+        let data ={
+          user: userData
+        }
+        res.json({
+          status: "success",
+          message: "query_success",
+          data: data
+        })
+      } else {
+        res.json({
+          status: "error",
+          message: "invalid_authtoken"
+        });
+      }
+    });
+  } else {
+    res.json({
+      status: "error",
+      message: "authtoken_missing"
+    });
+  }
+});
+
+router.post('/profile/update', authentication, (req, res) => {
+  let authToken = req.get("xy-authtoken");
+  let data = req.body;
+  let user = {};
+  if(data.firstName) user.firstName = data.firstName;
+  if(data.lastName) user.lastName = data.lastName;
+  if(data.address && !_.isEmpty(data.address)) {
+    user.address = {};
+    if(data.address.doorNumber) user.address.doorNumber = data.address.doorNumber;
+    if(data.address.street) user.address.street = data.address.street;
+    if(data.address.region) user.address.region = data.address.region;
+    if(data.address.city) user.address.city = data.address.city;
+    if(data.address.state) user.address.state = data.address.state;
+    if(data.address.country) user.address.country = data.address.country;
+    if(data.address.zipcode) user.address.zipcode = data.address.zipcode;
+    if(data.address.phone) user.address.phone = data.address.phone;
+  }
+  if(data.dob) user.dob = data.dob;
+  if(data.profileUrl) user.profileUrl = data.profileUrl;
+  Users.updateOne({authToken}, user,(err, user) => {
+    if(err) {
+      res.json({
+        status: "error",
+        message: "error_profile_update"
+      });
+    } else {
+      res.json({
+        status: "success",
+        message: "profile_update_success"
+      });
+    }
+  });
+});
+
 module.exports = router;
